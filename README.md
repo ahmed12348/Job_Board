@@ -48,8 +48,8 @@ A modern job board platform built with Vue.js and Laravel, allowing companies to
 
 1. **Clone the repository**
 ```bash
-git clone [repository-url]
-cd job_board2
+git clone https://github.com/ahmed12348/Job_Board
+cd job_board
 ```
 
 2. **Backend Setup**
@@ -74,7 +74,7 @@ DB_PASSWORD=your_password
 
 # Run migrations and seeders
 php artisan migrate
-php artisan db:seed
+
 
 # Start the backend server
 php artisan serve
@@ -151,13 +151,7 @@ job_board2/
 - GET `/api/applications/user/{user}` - Get user's applications
 - GET `/api/applications/job/{job}` - Get job's applications
 
-## Contributing
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
 
 ## License
 
