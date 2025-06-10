@@ -55,7 +55,8 @@ export const useApplicationsStore = defineStore('applications', {
       this.loading = true
       this.error = null
       try {
-        const response = await axios.post(`/jobs/${jobId}/apply`, {
+        const response = await axios.post('/applications', {
+          job_id: jobId,
           cover_letter: coverLetter
         })
         this.applications.push(response.data)

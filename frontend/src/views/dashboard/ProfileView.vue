@@ -46,7 +46,7 @@
                 </div>
 
                 <!-- Company Fields -->
-                <template v-if="auth.isCompany">
+                <template v-if="auth.isEmployer">
                   <div>
                     <label for="company_name" class="block text-sm font-medium text-gray-700">Company Name</label>
                     <div class="mt-1">
@@ -55,6 +55,20 @@
                         name="company_name"
                         id="company_name"
                         v-model="form.company_name"
+                        class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label for="company_location" class="block text-sm font-medium text-gray-700">Company Location</label>
+                    <div class="mt-1">
+                      <input
+                        type="text"
+                        name="company_location"
+                        id="company_location"
+                        v-model="form.company_location"
+                        placeholder="e.g. New York, NY"
                         class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
                       />
                     </div>
@@ -134,6 +148,7 @@
 
               <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
                 <span v-if="error" class="mr-3 text-sm text-red-600">{{ error }}</span>
+                <span v-if="success" class="mr-3 text-sm text-green-600">{{ success }}</span>
                 <button
                   type="submit"
                   :disabled="loading"
@@ -160,16 +175,20 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router'
 
 const auth = useAuthStore()
+const router = useRouter()
 const loading = ref(false)
 const error = ref('')
+const success = ref('')
 
 const form = ref({
   name: '',
   email: '',
   // Company fields
   company_name: '',
+  company_location: '',
   company_website: '',
   company_description: '',
   // Job seeker fields
@@ -182,8 +201,17 @@ const handleSubmit = async () => {
   loading.value = true
   error.value = ''
   try {
-    // TODO: Implement profile update in auth store
-    await auth.updateProfile(form.value)
+    const result = await auth.updateProfile(form.value)
+    
+    // Show success message
+    success.value = result.message
+
+    // If employer and new company was created, redirect to jobs page
+    if (auth.isEmployer && result.isNewCompany) {
+      setTimeout(() => {
+        router.push('/dashboard/jobs')
+      }, 1500) // Wait 1.5s to show success message
+    }
   } catch (err: any) {
     error.value = err.message || 'Failed to update profile'
   } finally {
@@ -198,9 +226,10 @@ onMounted(() => {
     form.value = {
       name: user.name || '',
       email: user.email || '',
-      company_name: user.company_name || '',
-      company_website: user.company_website || '',
-      company_description: user.company_description || '',
+      company_name: user.company?.name || '',
+      company_location: user.company?.location || '',
+      company_website: user.company?.website || '',
+      company_description: user.company?.description || '',
       title: user.title || '',
       skills: user.skills || '',
       bio: user.bio || ''

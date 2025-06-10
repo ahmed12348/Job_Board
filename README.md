@@ -1,158 +1,183 @@
 # Job Board Application
 
-A modern job board platform built with Vue.js and Laravel, allowing companies to post jobs and job seekers to find and apply for opportunities.
+A full-stack job board application built with Laravel (Backend) and Vue.js (Frontend). The application allows employers to post jobs and job seekers to find and apply for positions.
 
 ## Features
 
-### For Job Seekers
-- Browse available job listings
-- Search and filter jobs by various criteria
-- Create and manage your profile
-- Apply to jobs with cover letters
-- Track your job applications
-- Save jobs for later
+- **User Authentication**
+  - Register as employer or job seeker
+  - Login/Logout functionality
+  - Protected routes based on user type
 
-### For Companies
-- Post and manage job listings
-- Company profile management
-- Review job applications
-- Track applicant status
-- Manage active and inactive job posts
+- **Employer Features**
+  - Create and manage company profile
+  - Post, edit, and delete job listings
+  - View job applications
+  - Manage application statuses
 
-## Tech Stack
+- **Job Seeker Features**
+  - Create and manage professional profile
+  - Search and filter job listings
+  - Apply to jobs
+  - Save favorite jobs
+  - Track application status
 
-### Frontend
-- Vue.js 3
-- TypeScript
-- Tailwind CSS
-- Pinia for state management
-- Vue Router
-- Headless UI components
+## Prerequisites
 
-### Backend
-- Laravel
-- MySQL
-- Laravel Sanctum for authentication
-- RESTful API
-
-## Getting Started
-
-### Prerequisites
-- Node.js (v14 or higher)
-- PHP 8.0 or higher
+- PHP >= 8.0
 - Composer
-- MySQL
-- WAMP/XAMPP/MAMP (for local development)
+- Node.js >= 14
+- MySQL >= 5.7
+- WAMP/XAMPP/MAMP (or similar local development environment)
 
-### Installation
+## Installation
 
-1. **Clone the repository**
-```bash
-git clone https://github.com/ahmed12348/Job_Board
-cd job_board
-```
+### Backend Setup
 
-2. **Backend Setup**
+1. Navigate to the backend directory:
 ```bash
 cd backend
-# Install PHP dependencies
+```
+
+2. Install PHP dependencies:
+```bash
 composer install
+```
 
-# Copy environment file
+3. Create a copy of the environment file:
+```bash
 cp .env.example .env
+```
 
-# Generate application key
-php artisan key:generate
-
-# Configure your database in .env file
+4. Configure your database settings in `.env`:
+```
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=job_board
 DB_USERNAME=your_username
 DB_PASSWORD=your_password
+```
 
-# Run migrations and seeders
-php artisan migrate
+5. Generate application key:
+```bash
+php artisan key:generate
+```
 
+6. Run database migrations and seeders:
+```bash
+php artisan migrate --seed
+```
 
-# Start the backend server
+7. Start the Laravel development server:
+```bash
 php artisan serve
 ```
 
-3. **Frontend Setup**
+The backend API will be available at `http://localhost:8000`
+
+### Frontend Setup
+
+1. Navigate to the frontend directory:
 ```bash
 cd frontend
-# Install dependencies
+```
+
+2. Install Node.js dependencies:
+```bash
 npm install
+```
 
-# Copy environment file
+3. Create a copy of the environment file:
+```bash
 cp .env.example .env
+```
 
-# Configure API URL in .env file
-VITE_API_URL=http://localhost:8000
+4. Configure the API endpoint in `.env`:
+```
+VITE_API_URL=http://localhost:8000/api
+```
 
-# Start development server
+5. Start the development server:
+```bash
 npm run dev
 ```
 
+The frontend application will be available at `http://localhost:5173`
+
 ## Usage
 
-### For Job Seekers
-1. Register a new account as a "Job Seeker"
-2. Complete your profile with relevant information
-3. Browse available jobs
-4. Apply to jobs with a cover letter
-5. Track your applications in the dashboard
+### Default Test Accounts
 
-### For Companies
-1. Register a new account as a "Company"
-2. Complete your company profile
-3. Post new job listings from your dashboard
-4. Manage job posts (activate/deactivate)
-5. Review and manage applications
+After running the seeders, you can use these test accounts:
 
-## Project Structure
+**Employer Account:**
+- Email: employer@example.com
+- Password: password
 
-```
-job_board2/
-├── backend/                # Laravel backend
-│   ├── app/
-│   │   ├── Http/
-│   │   ├── Models/
-│   │   └── ...
-│   ├── database/
-│   └── routes/
-└── frontend/              # Vue.js frontend
-    ├── src/
-    │   ├── components/
-    │   ├── views/
-    │   ├── stores/
-    │   └── router/
-    └── public/
+**Job Seeker Account:**
+- Email: jobseeker@example.com
+- Password: password
+
+### Development Workflow
+
+1. Start the backend server:
+```bash
+cd backend
+php artisan serve
 ```
 
-## API Endpoints
+2. In a new terminal, start the frontend development server:
+```bash
+cd frontend
+npm run dev
+```
 
-### Authentication
-- POST `/api/auth/register` - Register new user
-- POST `/api/auth/login` - User login
-- POST `/api/auth/logout` - User logout
+3. Access the application at `http://localhost:5173`
 
-### Jobs
-- GET `/api/jobs` - List all jobs
-- POST `/api/jobs` - Create new job
-- GET `/api/jobs/{id}` - Get job details
-- PUT `/api/jobs/{id}` - Update job
-- DELETE `/api/jobs/{id}` - Delete job
+## API Documentation
 
-### Applications
-- POST `/api/applications` - Submit job application
-- GET `/api/applications/user/{user}` - Get user's applications
-- GET `/api/applications/job/{job}` - Get job's applications
+The API endpoints are documented using OpenAPI/Swagger. You can access the documentation at:
+`http://localhost:8000/api/documentation`
 
+## Testing
 
+### Backend Tests
+```bash
+cd backend
+php artisan test
+```
+
+### Frontend Tests
+```bash
+cd frontend
+npm run test
+```
+
+## Deployment
+
+### Backend Deployment
+1. Set up your production environment
+2. Configure your web server (Apache/Nginx)
+3. Update `.env` with production settings
+4. Run migrations: `php artisan migrate --force`
+5. Optimize Laravel: `php artisan optimize`
+
+### Frontend Deployment
+1. Build the production assets:
+```bash
+npm run build
+```
+2. Deploy the contents of the `dist` directory to your web server
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch: `git checkout -b feature/my-new-feature`
+3. Commit your changes: `git commit -am 'Add some feature'`
+4. Push to the branch: `git push origin feature/my-new-feature`
+5. Submit a pull request
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details 
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details 

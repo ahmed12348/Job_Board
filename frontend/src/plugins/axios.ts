@@ -1,4 +1,6 @@
 import axios from 'axios'
+import router from '@/router'
+import { useAuthStore } from '@/stores/auth'
 
 // Create axios instance with custom config
 const instance = axios.create({
@@ -6,7 +8,8 @@ const instance = axios.create({
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
-  }
+  },
+  withCredentials: true // Enable sending cookies with requests
 })
 
 // Add request interceptor
@@ -28,10 +31,11 @@ instance.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      // Clear auth data on 401 Unauthorized
-      localStorage.removeItem('token')
-      delete instance.defaults.headers.common['Authorization']
-      window.location.href = '/login'
+      // Only redirect to login if not already on login page and not trying to logout
+      if (router.currentRoute.value.name !== 'login' && !error.config.url.includes('/auth/logout')) {
+        const auth = useAuthStore()
+        await auth.logout()
+      }
     }
     return Promise.reject(error)
   }

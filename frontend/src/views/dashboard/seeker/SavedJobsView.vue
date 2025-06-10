@@ -11,27 +11,27 @@
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="text-center py-12">
+      <div v-if="jobsStore.loading" class="text-center py-12">
         <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-primary-500 border-t-transparent"></div>
         <p class="mt-2 text-sm text-gray-500">Loading saved jobs...</p>
       </div>
 
       <!-- Error State -->
-      <div v-else-if="error" class="text-center py-12">
+      <div v-else-if="jobsStore.error" class="text-center py-12">
         <div class="rounded-md bg-red-50 p-4">
           <div class="flex">
             <div class="flex-shrink-0">
               <XCircleIcon class="h-5 w-5 text-red-400" aria-hidden="true" />
             </div>
             <div class="ml-3">
-              <h3 class="text-sm font-medium text-red-800">{{ error }}</h3>
+              <h3 class="text-sm font-medium text-red-800">{{ jobsStore.error }}</h3>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="savedJobs.length === 0" class="text-center py-12">
+      <div v-else-if="jobsStore.savedJobs.length === 0" class="text-center py-12">
         <BookmarkIcon class="mx-auto h-12 w-12 text-gray-400" />
         <h3 class="mt-2 text-sm font-medium text-gray-900">No saved jobs</h3>
         <p class="mt-1 text-sm text-gray-500">
@@ -74,7 +74,7 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 bg-white">
-                  <tr v-for="job in savedJobs" :key="job.id">
+                  <tr v-for="job in jobsStore.savedJobs" :key="job.id">
                     <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                       <div class="font-medium text-gray-900">{{ job.title }}</div>
                       <div class="text-gray-500">{{ job.salary_range }}</div>
@@ -98,7 +98,7 @@
                       <button
                         type="button"
                         class="text-red-600 hover:text-red-900"
-                        @click="unsaveJob(job.id)"
+                        @click="handleUnsaveJob(job.id)"
                       >
                         Remove<span class="sr-only">, {{ job.title }}</span>
                       </button>
@@ -115,7 +115,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { useJobsStore } from '@/stores/jobs'
 import {
   BookmarkIcon,
@@ -125,28 +125,19 @@ import {
 
 const jobsStore = useJobsStore()
 
-const loading = ref(true)
-const error = ref('')
-const savedJobs = ref([])
-
-const fetchSavedJobs = async () => {
-  try {
-    savedJobs.value = await jobsStore.fetchSavedJobs()
-  } catch (err: any) {
-    error.value = err.message || 'Failed to load saved jobs'
-  } finally {
-    loading.value = false
-  }
-}
-
-const unsaveJob = async (jobId: number) => {
+const handleUnsaveJob = async (jobId: number) => {
   try {
     await jobsStore.unsaveJob(jobId)
-    savedJobs.value = savedJobs.value.filter(job => job.id !== jobId)
-  } catch (err: any) {
-    error.value = err.message || 'Failed to remove job from saved list'
+  } catch (error) {
+    console.error('Failed to remove job from saved list:', error)
   }
 }
 
-onMounted(fetchSavedJobs)
+onMounted(async () => {
+  try {
+    await jobsStore.fetchSavedJobs()
+  } catch (error) {
+    console.error('Failed to fetch saved jobs:', error)
+  }
+})
 </script> 

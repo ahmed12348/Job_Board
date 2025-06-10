@@ -22,7 +22,7 @@
               </router-link>
 
               <!-- Company Links -->
-              <template v-if="isCompany">
+              <template v-if="isEmployer">
                 <router-link
                   to="/dashboard/jobs"
                   class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900"
@@ -33,7 +33,7 @@
               </template>
 
               <!-- Job Seeker Links -->
-              <template v-if="isSeeker">
+              <template v-if="isJobSeeker">
                 <router-link
                   to="/dashboard/applications"
                   class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900"
@@ -125,8 +125,8 @@ import { BellIcon, UserCircleIcon } from '@heroicons/vue/24/outline'
 const router = useRouter()
 const auth = useAuthStore()
 
-const isCompany = computed(() => auth.isCompany)
-const isSeeker = computed(() => auth.isSeeker)
+const isEmployer = computed(() => auth.isEmployer)
+const isJobSeeker = computed(() => auth.isJobSeeker)
 
 const handleLogout = async () => {
   await auth.logout()

@@ -6,7 +6,16 @@ interface User {
   id: number
   name: string
   email: string
-  type: 'company' | 'seeker'
+  type: 'employer' | 'job_seeker'
+  company?: {
+    id: number
+    name: string
+    website?: string
+    description?: string
+  }
+  title?: string
+  skills?: string
+  bio?: string
 }
 
 interface LoginData {
@@ -16,7 +25,19 @@ interface LoginData {
 
 interface RegisterData extends LoginData {
   name: string
-  type: 'company' | 'seeker'
+  type: 'employer' | 'job_seeker'
+}
+
+interface ProfileData {
+  name: string
+  email: string
+  company_name?: string
+  company_website?: string
+  company_description?: string
+  company_location?: string
+  title?: string
+  skills?: string
+  bio?: string
 }
 
 export const useAuthStore = defineStore('auth', {
@@ -29,8 +50,8 @@ export const useAuthStore = defineStore('auth', {
 
   getters: {
     isAuthenticated: (state) => !!state.token,
-    isCompany: (state) => state.user?.type === 'company',
-    isSeeker: (state) => state.user?.type === 'seeker'
+    isEmployer: (state) => state.user?.type === 'employer',
+    isJobSeeker: (state) => state.user?.type === 'job_seeker'
   },
 
   actions: {
@@ -49,7 +70,7 @@ export const useAuthStore = defineStore('auth', {
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
         
         // Redirect based on user type
-        if (this.isCompany) {
+        if (this.isEmployer) {
           await router.push('/dashboard/jobs')
         } else {
           await router.push('/jobs')
@@ -77,7 +98,7 @@ export const useAuthStore = defineStore('auth', {
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
         
         // Redirect based on user type
-        if (this.isCompany) {
+        if (this.isEmployer) {
           await router.push('/dashboard/jobs')
         } else {
           await router.push('/jobs')
@@ -94,7 +115,7 @@ export const useAuthStore = defineStore('auth', {
       if (!this.token) return
 
       try {
-        const response = await axios.get('/auth/user')
+        const response = await axios.get('/auth/profile')
         this.user = response.data
       } catch (error) {
         this.logout()
@@ -118,12 +139,60 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    initializeAuth() {
+    async initializeAuth() {
       const token = localStorage.getItem('token')
       if (token) {
         this.token = token
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-        this.fetchUser()
+        await this.fetchUser()
+      }
+    },
+
+    async updateProfile(data: ProfileData) {
+      this.loading = true
+      this.error = null
+      try {
+        // If employer is updating company info
+        if (this.isEmployer && (data.company_name || data.company_website || data.company_description)) {
+          const companyData = {
+            name: data.company_name,
+            website: data.company_website,
+            description: data.company_description,
+            location: data.company_location || 'Not specified'
+          }
+
+          if (this.user?.company) {
+            // Update existing company
+            await axios.put(`/companies/${this.user.company.id}`, companyData)
+          } else {
+            // Create new company
+            await axios.post('/companies', companyData)
+            // Refresh user data to get the new company info
+            await this.fetchUser()
+          }
+        }
+
+        // Update user profile
+        const userData = {
+          name: data.name,
+          title: data.title,
+          skills: data.skills,
+          bio: data.bio
+        }
+
+        const response = await axios.put('/auth/profile', userData)
+        this.user = response.data
+
+        return {
+          success: true,
+          message: this.isEmployer ? 'Profile and company information updated successfully' : 'Profile updated successfully',
+          isNewCompany: !this.user?.company
+        }
+      } catch (error: any) {
+        this.error = error.response?.data?.message || 'Failed to update profile'
+        throw error
+      } finally {
+        this.loading = false
       }
     }
   }

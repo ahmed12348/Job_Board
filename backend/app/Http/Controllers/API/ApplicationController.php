@@ -17,9 +17,10 @@ class ApplicationController extends Controller
      */
     public function index()
     {
-        $applications = Application::with(['job.company', 'user'])
+        $applications = Application::with(['job.company'])
+            ->where('user_id', auth()->id())
             ->latest()
-            ->paginate(10);
+            ->get();
         return response()->json($applications);
     }
 

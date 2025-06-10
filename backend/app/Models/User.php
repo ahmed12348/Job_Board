@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'type',
     ];
 
     /**
@@ -40,5 +41,47 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'type' => 'string'
     ];
+
+    /**
+     * Check if the user is a job seeker.
+     *
+     * @return bool
+     */
+    public function isJobSeeker(): bool
+    {
+        return $this->type === 'job_seeker';
+    }
+
+    /**
+     * Check if the user is an employer.
+     *
+     * @return bool
+     */
+    public function isEmployer(): bool
+    {
+        return $this->type === 'employer';
+    }
+
+    /**
+     * Get the company associated with the employer.
+     */
+    public function company()
+    {
+        return $this->hasOne(Company::class);
+    }
+
+    /**
+     * Get the job applications for the job seeker.
+     */
+    public function applications()
+    {
+        return $this->hasMany(Application::class);
+    }
+
+    public function savedJobs()
+    {
+        return $this->hasMany(SavedJob::class);
+    }
 }

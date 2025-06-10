@@ -7,30 +7,48 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules;
+use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
     public function register(Request $request)
     {
+        // Debug the incoming request data
+        Log::info('Registration request data:', $request->all());
+        
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'type' => ['required', 'string', 'in:employer,job_seeker'],
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        // Log the validated type value
+        Log::info('Validated type value:', ['type' => $request->type]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'type' => $request->type,
+            ]);
 
-        return response()->json([
-            'user' => $user,
-            'token' => $token
-        ], 201);
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'user' => $user,
+                'token' => $token,
+                'message' => $user->type === 'employer' 
+                    ? 'Registration successful! Please create your company profile to start posting jobs.'
+                    : 'Registration successful! You can now start browsing and applying for jobs.'
+            ], 201);
+        } catch (\Exception $e) {
+            Log::error('Registration error:', ['error' => $e->getMessage()]);
+            throw $e;
+        }
     }
 
     public function login(Request $request)
@@ -51,7 +69,10 @@ class AuthController extends Controller
 
         return response()->json([
             'user' => $user,
-            'token' => $token
+            'token' => $token,
+            'message' => $user->type === 'employer' && !$user->company 
+                ? 'Welcome back! Please create your company profile to start posting jobs.'
+                : 'Welcome back!'
         ]);
     }
 
@@ -62,5 +83,45 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Successfully logged out'
         ]);
+    }
+
+    /**
+     * Get the authenticated user's profile
+     */
+    public function profile(Request $request)
+    {
+        $user = $request->user();
+        if ($user->type === 'employer') {
+            $user->load('company');
+        }
+        return response()->json($user);
+    }
+
+    /**
+     * Update the authenticated user's profile
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+        
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'title' => 'nullable|string|max:255',
+            'skills' => 'nullable|string',
+            'bio' => 'nullable|string'
+        ]);
+
+        $user->update($request->only([
+            'name',
+            'title',
+            'skills',
+            'bio'
+        ]));
+
+        if ($user->type === 'employer') {
+            $user->load('company');
+        }
+
+        return response()->json($user);
     }
 }

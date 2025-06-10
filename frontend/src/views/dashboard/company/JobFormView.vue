@@ -67,17 +67,34 @@
                 </div>
 
                 <!-- Salary Range -->
-                <div>
-                  <label for="salary_range" class="block text-sm font-medium text-gray-700">Salary Range</label>
-                  <div class="mt-1">
-                    <input
-                      type="text"
-                      name="salary_range"
-                      id="salary_range"
-                      v-model="form.salary_range"
-                      placeholder="e.g. $50,000 - $70,000"
-                      class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                    />
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                  <div>
+                    <label for="salary_min" class="block text-sm font-medium text-gray-700">Minimum Salary</label>
+                    <div class="mt-1">
+                      <input
+                        type="number"
+                        name="salary_min"
+                        id="salary_min"
+                        v-model="form.salary_min"
+                        placeholder="e.g. 50000"
+                        min="0"
+                        class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label for="salary_max" class="block text-sm font-medium text-gray-700">Maximum Salary</label>
+                    <div class="mt-1">
+                      <input
+                        type="number"
+                        name="salary_max"
+                        id="salary_max"
+                        v-model="form.salary_max"
+                        placeholder="e.g. 70000"
+                        min="0"
+                        class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -111,6 +128,20 @@
                   </div>
                 </div>
 
+                <!-- Benefits -->
+                <div>
+                  <label for="benefits" class="block text-sm font-medium text-gray-700">Benefits</label>
+                  <div class="mt-1">
+                    <textarea
+                      id="benefits"
+                      name="benefits"
+                      rows="4"
+                      v-model="form.benefits"
+                      class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                    ></textarea>
+                  </div>
+                </div>
+
                 <!-- Status -->
                 <div>
                   <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
@@ -129,7 +160,7 @@
                 </div>
               </div>
 
-              <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+              <div class="px-4 py-3 bg-gray-50 text-right sm:p-6">
                 <span v-if="error" class="mr-3 text-sm text-red-600">{{ error }}</span>
                 <button
                   type="button"
@@ -181,9 +212,11 @@ const form = ref({
   title: '',
   location: '',
   type: 'full-time',
-  salary_range: '',
+  salary_min: '',
+  salary_max: '',
   description: '',
   requirements: '',
+  benefits: '',
   status: 'active'
 })
 
@@ -191,15 +224,22 @@ const handleSubmit = async () => {
   loading.value = true
   error.value = ''
   try {
+    const jobData = {
+      ...form.value,
+      salary_min: form.value.salary_min ? Number(form.value.salary_min) : null,
+      salary_max: form.value.salary_max ? Number(form.value.salary_max) : null
+    }
+
     if (isEditing.value) {
       const jobId = Number(route.params.id)
-      await jobsStore.updateJob(jobId, form.value)
+      await jobsStore.updateJob(jobId, jobData)
     } else {
-      await jobsStore.createJob(form.value)
+      await jobsStore.createJob(jobData)
     }
     router.push('/dashboard/jobs')
   } catch (err: any) {
-    error.value = err.message || 'Failed to save job'
+    error.value = err.response?.data?.message || 'Failed to save job'
+    console.error('Error saving job:', err.response?.data)
   } finally {
     loading.value = false
   }
@@ -215,9 +255,11 @@ onMounted(async () => {
         title: job.title,
         location: job.location,
         type: job.type,
-        salary_range: job.salary_range,
+        salary_min: job.salary_min ? job.salary_min.toString() : '',
+        salary_max: job.salary_max ? job.salary_max.toString() : '',
         description: job.description,
         requirements: job.requirements,
+        benefits: job.benefits,
         status: job.status
       }
     } catch (err: any) {

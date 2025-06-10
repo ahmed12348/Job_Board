@@ -151,12 +151,12 @@
                     v-model="type"
                     name="type"
                     type="radio"
-                    value="company"
+                    value="employer"
                     class="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500"
                   />
                 </div>
                 <div class="ml-3 text-sm">
-                  <label for="company" class="font-medium text-gray-700">Company</label>
+                  <label for="company" class="font-medium text-gray-700">Employer</label>
                   <p class="text-gray-500">I want to post jobs and manage applications</p>
                 </div>
               </div>
@@ -238,7 +238,7 @@ const handleSubmit = async () => {
       email: email.value,
       password: password.value,
       password_confirmation: passwordConfirmation.value,
-      type: type.value === 'company' ? 'company' : 'seeker'
+      type: type.value
     })
     
     success.value = true

@@ -23,7 +23,7 @@
               <!-- Authenticated Links -->
               <template v-if="auth.isAuthenticated">
                 <!-- Company Links -->
-                <template v-if="auth.isCompany">
+                <template v-if="auth.isEmployer">
                   <router-link
                     to="/dashboard/jobs"
                     class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900"
@@ -41,7 +41,7 @@
                 </template>
 
                 <!-- Job Seeker Links -->
-                <template v-if="auth.isSeeker">
+                <template v-if="auth.isJobSeeker">
                   <router-link
                     to="/dashboard/applications"
                     class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900"
@@ -49,13 +49,13 @@
                   >
                     My Applications
                   </router-link>
-                  <router-link
+                  <!-- <router-link
                     to="/dashboard/saved-jobs"
                     class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900"
                     active-class="border-b-2 border-primary-500"
                   >
                     Saved Jobs
-                  </router-link>
+                  </router-link> -->
                 </template>
               </template>
             </div>
@@ -105,14 +105,14 @@
                   leave-to-class="transform opacity-0 scale-95"
                 >
                   <MenuItems class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
-                    <MenuItem v-slot="{ active }">
+                    <!-- <MenuItem v-slot="{ active }">
                       <router-link
                         to="/dashboard"
                         :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']"
                       >
                         Dashboard
                       </router-link>
-                    </MenuItem>
+                    </MenuItem> -->
                     <MenuItem v-slot="{ active }">
                       <router-link
                         to="/dashboard/profile"

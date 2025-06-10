@@ -91,8 +91,18 @@ const router = createRouter({
 })
 
 // Navigation guard
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const auth = useAuthStore()
+
+  // If there's a token but no user data, try to fetch it
+  if (auth.token && !auth.user) {
+    try {
+      await auth.fetchUser()
+    } catch (error) {
+      // If fetching user fails, redirect to login
+      return next({ name: 'login' })
+    }
+  }
 
   // Handle authentication requirements
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
@@ -100,16 +110,16 @@ router.beforeEach((to, from, next) => {
   }
 
   if (to.meta.requiresGuest && auth.isAuthenticated) {
-    return next({ name: 'dashboard' })
+    return next({ name: 'dashboard-home' })
   }
 
   // Handle user type requirements
-  if (to.meta.requiresCompany && !auth.isCompany) {
-    return next({ name: 'dashboard' })
+  if (to.meta.requiresCompany && !auth.isEmployer) {
+    return next({ name: 'dashboard-home' })
   }
 
-  if (to.meta.requiresSeeker && !auth.isSeeker) {
-    return next({ name: 'dashboard' })
+  if (to.meta.requiresSeeker && !auth.isJobSeeker) {
+    return next({ name: 'dashboard-home' })
   }
 
   next()
