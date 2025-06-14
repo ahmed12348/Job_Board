@@ -6,7 +6,7 @@ import axios from 'axios'
 import './assets/main.css'
 
 // Configure axios defaults
-axios.defaults.baseURL = 'http://localhost:8000/api'
+axios.defaults.baseURL = 'http://localhost:8000/api'  // Keep this as localhost since we're accessing from browser
 axios.interceptors.request.use(config => {
   const token = localStorage.getItem('token')
   if (token) {

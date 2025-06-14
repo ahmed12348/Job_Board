@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('saved_jobs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('job_id')->constrained()->onDelete('cascade');
+            $table->foreignId('job_id')->constrained('jobs')->onDelete('cascade');
             $table->timestamps();
             
             // Ensure a user can't save the same job multiple times
