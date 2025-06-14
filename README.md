@@ -29,10 +29,60 @@ A full-stack job board application built with Laravel (Backend) and Vue.js (Fron
 - Node.js >= 14
 - MySQL >= 5.7
 - WAMP/XAMPP/MAMP (or similar local development environment)
+- Docker and Docker Compose (optional, for containerized setup)
 
 ## Installation
 
-### Backend Setup
+### Option 1: Docker Setup (Recommended)
+
+1. Make sure Docker and Docker Compose are installed on your system
+2. Clone the repository and navigate to the project root
+3. Copy the environment files:
+```bash
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+```
+4. Start the Docker containers:
+```bash
+docker-compose up -d
+```
+5. Install backend dependencies and run migrations:
+```bash
+docker-compose exec backend composer install
+docker-compose exec backend php artisan key:generate
+docker-compose exec backend php artisan migrate --seed
+```
+6. Install frontend dependencies:
+```bash
+docker-compose exec frontend npm install
+```
+
+The application will be available at:
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:8000
+- MySQL: localhost:3306
+
+To stop the containers:
+```bash
+docker-compose down
+```
+
+### Docker Configuration
+
+The project includes the following Docker configuration files:
+
+- `docker-compose.yml`: Defines the services (backend, frontend, MySQL)
+- `backend/Dockerfile`: Backend container configuration
+- `frontend/Dockerfile`: Frontend container configuration
+
+The Docker setup includes:
+- PHP 8.0 with required extensions
+- Node.js 14
+- MySQL 5.7
+- Nginx for serving the frontend
+- Automatic hot-reloading for development
+
+### Option 2: Manual Setup
 
 1. Navigate to the backend directory:
 ```bash
